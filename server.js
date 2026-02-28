@@ -10,31 +10,34 @@ app.use(express.static(__dirname));
 const PORT = 9090;
 const API_KEY = "pub_1366592f70104e74a11fce2ead31f57fb";
 
-async function fetchNewsPage(page = 10) {
-  const url = `https://newsdata.io/api/1/news?apikey=${API_KEY}&country=in&language=en,hi&page=${page}`;
+async function fetchNewsPage(nextPage = null) {
+  let url = `https://newsdata.io/api/1/news?apikey=${API_KEY}&country=in&language=en,hi`;
+  if (nextPage) url += `&page=${nextPage}`;
+
   const response = await fetch(url);
   const data = await response.json();
-  return data.results || [];
+  return {
+    results: data.results || [],
+    nextPage: data.nextPage || null,
+  };
 }
 
 app.get("/api/news", async (req, res) => {
   try {
     let allResults = [];
-    let page = 10;
-    let results;
+    let nextPage = null;
+    let pagesFetched = 0;
+    const MAX_PAGES = 3; // limit to avoid burning through your API quota
 
     do {
-      results = await fetchNewsPage(page);
+      const { results, nextPage: newNextPage } = await fetchNewsPage(nextPage);
       if (results.length === 0) break;
-
       allResults = allResults.concat(results);
-      page++;
-
-      if (page > 10) break;
-    } while (results.length > 0);
+      nextPage = newNextPage;
+      pagesFetched++;
+    } while (nextPage && pagesFetched < MAX_PAGES);
 
     res.json(allResults);
-
   } catch (err) {
     console.error("SERVER ERROR:", err);
     res.status(500).json({ error: "Server crashed" });
@@ -47,5 +50,4 @@ app.get("/", (req, res) => {
 
 app.listen(PORT, () =>
   console.log(`Prototype running at http://localhost:${PORT}`)
-
 );
