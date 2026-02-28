@@ -51,3 +51,10 @@ app.get("/", (req, res) => {
 app.listen(PORT, () =>
   console.log(`Prototype running at http://localhost:${PORT}`)
 );
+
+app.get("/api/debug", async (req, res) => {
+  const url = `https://newsdata.io/api/1/news?apikey=${API_KEY}&country=in&language=en,hi`;
+  const response = await fetch(url);
+  const data = await response.json();
+  res.json(data); // see exactly what newsdata.io is returning
+});
