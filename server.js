@@ -7,7 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.static(__dirname));
 
-const PORT = 9090;
+const PORT = process.env.PORT || 9090;
 const API_KEY = "pub_1366592f70104e74a11fce2ead31f57fb";
 
 async function fetchNewsPage(nextPage = null) {
@@ -58,3 +58,4 @@ app.get("/api/debug", async (req, res) => {
   const data = await response.json();
   res.json(data); // see exactly what newsdata.io is returning
 });
+
