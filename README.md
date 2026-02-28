@@ -1,1 +1,1 @@
-# newsroom-seedtosuccess
+# newsroom-seedtoscale
