@@ -7,7 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.static(__dirname));
 
-const PORT = 8089;
+const PORT = 9090;
 const API_KEY = "pub_1366592f70104e74a11fce2ead31f57fb";
 
 async function fetchNewsPage(page = 10) {
@@ -47,4 +47,5 @@ app.get("/", (req, res) => {
 
 app.listen(PORT, () =>
   console.log(`Prototype running at http://localhost:${PORT}`)
+
 );
