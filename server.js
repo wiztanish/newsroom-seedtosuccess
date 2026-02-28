@@ -6,7 +6,7 @@ const fetch = require("node-fetch");
 const app = express();
 app.use(cors());
 
-const PORT = process.env.PORT || 9090;
+const PORT = process.env.PORT || 4000;
 const API_KEY = "pub_1366592f70104e74a11fce2ead31f57fb";
 
 async function fetchNewsPage(nextPage = null) {
@@ -58,3 +58,4 @@ app.get("/", (req, res) => {
 app.listen(PORT, () =>
   console.log(`Prototype running at http://localhost:${PORT}`)
 );
+
