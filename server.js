@@ -5,41 +5,51 @@ const fetch = require("node-fetch");
 
 const app = express();
 app.use(cors());
-app.use(express.static(__dirname));
 
-const PORT = 8089;
+const PORT = process.env.PORT || 9090;
 const API_KEY = "pub_1366592f70104e74a11fce2ead31f57fb";
 
-async function fetchNewsPage(page = 10) {
-  const url = `https://newsdata.io/api/1/news?apikey=${API_KEY}&country=in&language=en,hi&page=${page}`;
+async function fetchNewsPage(nextPage = null) {
+  let url = `https://newsdata.io/api/1/news?apikey=${API_KEY}&country=in&language=en,hi`;
+  if (nextPage) url += `&page=${nextPage}`;
   const response = await fetch(url);
   const data = await response.json();
-  return data.results || [];
+  return {
+    results: data.results || [],
+    nextPage: data.nextPage || null,
+  };
 }
 
+// ✅ API routes FIRST
 app.get("/api/news", async (req, res) => {
   try {
     let allResults = [];
-    let page = 10;
-    let results;
-
+    let nextPage = null;
+    let pagesFetched = 0;
+    const MAX_PAGES = 3;
     do {
-      results = await fetchNewsPage(page);
+      const { results, nextPage: newNextPage } = await fetchNewsPage(nextPage);
       if (results.length === 0) break;
-
       allResults = allResults.concat(results);
-      page++;
-
-      if (page > 10) break;
-    } while (results.length > 0);
-
+      nextPage = newNextPage;
+      pagesFetched++;
+    } while (nextPage && pagesFetched < MAX_PAGES);
     res.json(allResults);
-
   } catch (err) {
     console.error("SERVER ERROR:", err);
     res.status(500).json({ error: "Server crashed" });
   }
 });
+
+app.get("/api/debug", async (req, res) => {
+  const url = `https://newsdata.io/api/1/news?apikey=${API_KEY}&country=in&language=en,hi`;
+  const response = await fetch(url);
+  const data = await response.json();
+  res.json(data);
+});
+
+// ✅ Static files AFTER API routes
+app.use(express.static(__dirname));
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
