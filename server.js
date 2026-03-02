@@ -7,7 +7,7 @@ const app = express();
 app.use(cors());
 
 const PORT = process.env.PORT || 4000;
-const API_KEY = "pub_afad95a11fb14b318f8391239459c26f";
+const API_KEY = "";
 
 async function fetchNewsPage(nextPage = null) {
   let url = `https://newsdata.io/api/1/news?apikey=${API_KEY}&country=in&language=en,hi`;
@@ -58,5 +58,6 @@ app.get("/", (req, res) => {
 app.listen(PORT, () =>
   console.log(`Prototype running at http://localhost:${PORT}`)
 );
+
 
 
